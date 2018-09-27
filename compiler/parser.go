@@ -1132,8 +1132,8 @@ var g = &grammar{
 					exprs: []interface{}{
 						&charClassMatcher{
 							pos:        position{line: 217, col: 28, offset: 5520},
-							val:        "[@_a-zA-Z]",
-							chars:      []rune{'@', '_'},
+							val:        "[@_-a-zA-Z]",
+							chars:      []rune{'@', '_', '-'},
 							ranges:     []rune{'a', 'z', 'A', 'Z'},
 							ignoreCase: false,
 							inverted:   false,
@@ -1143,7 +1143,7 @@ var g = &grammar{
 							expr: &charClassMatcher{
 								pos:        position{line: 217, col: 39, offset: 5531},
 								val:        "[._-:a-zA-Z0-9]",
-								chars:      []rune{'.'},
+								chars:      []rune{'.', '_', '-'},
 								ranges:     []rune{'_', ':', 'a', 'z', 'A', 'Z', '0', '9'},
 								ignoreCase: false,
 								inverted:   false,
