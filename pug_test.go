@@ -338,6 +338,26 @@ each v in Items
 	}
 }
 
+func Test_EachInEach(t *testing.T) {
+	res, err := run(`
+each v1 in Arr1
+	each v2 in Arr2
+		p #{v1}#{v2}
+		`, struct {
+		Arr1 []int
+		Arr2 []int
+	}{
+		Arr1: []int{1, 2},
+		Arr2: []int{3, 4},
+	})
+
+	if err != nil {
+		t.Fatal(err.Error())
+	} else {
+		expect(res, `<p>13</p><p>14</p><p>23</p><p>24</p>`, t)
+	}
+}
+
 func Test_Assignment(t *testing.T) {
 	res, err := run(`
 - var vrb = "test"

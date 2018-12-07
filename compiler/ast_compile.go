@@ -289,7 +289,7 @@ func (n *Each) Compile(w Context, parent Node) (err error) {
 	}
 
 	n.ElementVariable = n.Parent.variable(n.ElementVariable)
-	w.writef("$%s := ", n.ElementVariable.Name)
+	w.writef("$%s := $", n.ElementVariable.Name)
 
 	if err := n.Container.Compile(w, n); err != nil {
 		return err
