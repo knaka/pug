@@ -293,7 +293,7 @@ func (n *Each) Compile(w Context, parent Node) (err error) {
 	if len(varName) > 0 && varName[0] == '.' {
 		varName = "$" + varName
 	}
-	w.writef("$%s := $", varName)
+	w.writef("$%s := ", varName)
 
 	if err := n.Container.Compile(w, n); err != nil {
 		return err
