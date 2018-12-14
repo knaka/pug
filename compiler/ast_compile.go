@@ -289,11 +289,7 @@ func (n *Each) Compile(w Context, parent Node) (err error) {
 	}
 
 	n.ElementVariable = n.Parent.variable(n.ElementVariable)
-	varName := n.ElementVariable.Name
-	if len(varName) > 0 && varName[0] == '.' {
-		varName = "$" + varName
-	}
-	w.writef("$%s := ", varName)
+	w.writef("$%s := ", n.ElementVariable.Name)
 
 	if err := n.Container.Compile(w, n); err != nil {
 		return err
@@ -324,7 +320,7 @@ func (n *Mixin) Compile(w Context, parent Node) (err error) {
 			w.writeLinef("{{ $%s := index . %d }}", arg.Name.Name, i+1)
 		}
 
-		w.writeLine(`{{ with index . 0 }}`)
+		w.writeLine(`{{ with $ := index . 0 }}`)
 		if n.Block != nil {
 			w.indent()
 			if err := n.Block.Compile(w, n); err != nil {
@@ -381,7 +377,7 @@ func (n *FieldExpression) Compile(w Context, parent Node) (err error) {
 	if n.variable(n.Variable, true) != nil {
 		w.write("$")
 	} else {
-		w.write(".")
+		w.write("$.")
 	}
 
 	w.write(n.Variable.Name)

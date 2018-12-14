@@ -311,6 +311,14 @@ mixin test()
 +test()
 `, testStruct{Key: "value"})
 
+	s, _ := ParseString(`
+mixin test()
+	p #{Key}
+
++test()
+`, Options{PrettyPrint: true})
+	t.Log(s)
+
 	if err != nil {
 		t.Fatal(err.Error())
 	} else {
