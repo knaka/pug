@@ -32,6 +32,74 @@
 
     return cur, nil
   }
+
+  func unquote(s string) (string, error) {
+  	n := len(s)
+  	if n < 2 {
+  		return "", strconv.ErrSyntax
+  	}
+  	quote := s[0]
+  	if quote != s[n-1] {
+  		return "", strconv.ErrSyntax
+  	}
+  	s = s[1 : n-1]
+
+  	if quote == '`' {
+  		if contains(s, '`') {
+  			return "", strconv.ErrSyntax
+  		}
+  		if contains(s, '\r') {
+  			// -1 because we know there is at least one \r to remove.
+  			buf := make([]byte, 0, len(s)-1)
+  			for i := 0; i < len(s); i++ {
+  				if s[i] != '\r' {
+  					buf = append(buf, s[i])
+  				}
+  			}
+  			return string(buf), nil
+  		}
+  		return s, nil
+  	}
+  	if quote != '"' && quote != '\'' {
+  		return "", strconv.ErrSyntax
+  	}
+  	if contains(s, '\n') {
+  		return "", strconv.ErrSyntax
+  	}
+
+  	// Is it trivial? Avoid allocation.
+  	if !contains(s, '\\') && !contains(s, quote) {
+        if utf8.ValidString(s) {
+            return s, nil
+        }
+  	}
+
+  	var runeTmp [utf8.UTFMax]byte
+  	buf := make([]byte, 0, 3*len(s)/2) // Try to avoid more allocations.
+  	for len(s) > 0 {
+  		c, multibyte, ss, err := strconv.UnquoteChar(s, quote)
+  		if err != nil {
+  			return "", err
+  		}
+  		s = ss
+  		if c < utf8.RuneSelf || !multibyte {
+  			buf = append(buf, byte(c))
+  		} else {
+  			n := utf8.EncodeRune(runeTmp[:], c)
+  			buf = append(buf, runeTmp[:n]...)
+  		}
+  	}
+  	return string(buf), nil
+  }
+
+  func contains(s string, c byte) bool {
+  	for i := 0; i < len(s); i++ {
+  		if s[i] == c {
+  			return true
+  		}
+  	}
+  	return false
+  }
 }
 
 Input <- l:List EOF {
@@ -214,7 +282,7 @@ TagAttributeName <- '(' tn:TagAttributeNameLiteral ')' {
 ClassName <- Name
 IdName <- Name
 
-TagAttributeNameLiteral <- [@_a-zA-Z] [._-:a-zA-Z0-9]* {
+TagAttributeNameLiteral <- [---@_a-zA-Z] [---._:a-zA-Z0-9]* {
   return string(c.text), nil
 }
 
@@ -580,8 +648,9 @@ BinOp <- ( "&&" / "||" ) {
   return string(c.text), nil
 }
 
-String "string" <- Quote ( !EscapedChar . / '\\' EscapeSequence )* Quote {
-  return strconv.Unquote(string(c.text))
+String "string" <- ((Quote ( !EscapedChar . / '\\' EscapeSequence )* Quote)/(SingleQuote ( !SingleQuoteEscapedChar . / '\\' SingleQuoteEscapeSequence )* SingleQuote)) {
+  //return strconv.Unquote(string(c.text))
+  return unquote(string(c.text))
 }
 
 Index <- Integer {
@@ -589,10 +658,14 @@ Index <- Integer {
 }
 
 Quote "quote" <- `"`
+SingleQuote "single_quote" <- `'`
 
 EscapedChar <- [\x00-\x1f"\\]
 EscapeSequence <- SingleCharEscape / UnicodeEscape
 SingleCharEscape <- ["\\/bfnrt]
+SingleQuoteEscapedChar <- [\x00-\x1f'\\]
+SingleQuoteEscapeSequence <- SingleQuoteSingleCharEscape / UnicodeEscape
+SingleQuoteSingleCharEscape <- ['\\/bfnrt]
 UnicodeEscape <- 'u' HexDigit HexDigit HexDigit HexDigit
 
 Integer <- '0' / NonZeroDecimalDigit DecimalDigit*

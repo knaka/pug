@@ -2,6 +2,7 @@ package pug
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -46,6 +47,17 @@ func Test_Class(t *testing.T) {
 		t.Fatal(err.Error())
 	} else {
 		expect(res, `<div class="test"></div>`, t)
+	}
+}
+
+func Test_Arg_Quotes(t *testing.T) {
+	res, err := run(`div(x-arg='test')`, nil)
+
+	fmt.Println(res)
+	if err != nil {
+		t.Fatal(err.Error())
+	} else {
+		expect(res, `<div x-arg="test"></div>`, t)
 	}
 }
 
