@@ -2,7 +2,6 @@ package pug
 
 import (
 	"bytes"
-	"fmt"
 	"strings"
 	"testing"
 )
@@ -53,7 +52,6 @@ func Test_Class(t *testing.T) {
 func Test_Arg_Quotes(t *testing.T) {
 	res, err := run(`div(x-arg='test')`, nil)
 
-	fmt.Println(res)
 	if err != nil {
 		t.Fatal(err.Error())
 	} else {
