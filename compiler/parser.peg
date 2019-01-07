@@ -649,7 +649,6 @@ BinOp <- ( "&&" / "||" ) {
 }
 
 String "string" <- ((Quote ( !EscapedChar . / '\\' EscapeSequence )* Quote)/(SingleQuote ( !SingleQuoteEscapedChar . / '\\' SingleQuoteEscapeSequence )* SingleQuote)) {
-  //return strconv.Unquote(string(c.text))
   return unquote(string(c.text))
 }
 

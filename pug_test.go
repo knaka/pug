@@ -59,6 +59,16 @@ func Test_Arg_Quotes(t *testing.T) {
 	}
 }
 
+func Test_Arg_Quotes_With_Inner_Quote(t *testing.T) {
+	res, err := run(`div(x-arg='test=\'\';')`, nil)
+
+	if err != nil {
+		t.Fatal(err.Error())
+	} else {
+		expect(res, `<div x-arg="test='';"></div>`, t)
+	}
+}
+
 func Test_MultiClass(t *testing.T) {
 	res, err := run(`
 div.test.foo.bar(class="baz")

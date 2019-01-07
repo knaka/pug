@@ -204,7 +204,7 @@ func (n *Attribute) Compile(w Context, parent Node) (err error) {
 		}
 		w.write(` }}`)
 	} else if ok {
-		w.writef(`%s="%s"`, n.Name, html.EscapeString(strAttribute.Value))
+		w.writef(`%s=%q`, n.Name, strAttribute.Value)
 	} else {
 		w.writef(`%s="{{ `, n.Name)
 		if err := n.Value.Compile(w, n); err != nil {
