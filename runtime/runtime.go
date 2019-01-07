@@ -249,8 +249,12 @@ func Unescape(val string) template.HTML {
 	return template.HTML(val)
 }
 
-func UnescapeAttr(name, val string) template.HTMLAttr {
-	return template.HTMLAttr(fmt.Sprintf(` %s="%s"`, name, val))
+func UnescapeAttr(name string, val interface{}) template.HTMLAttr {
+	var stringVal string
+	if val != nil {
+		stringVal = fmt.Sprint(val)
+	}
+	return template.HTMLAttr(fmt.Sprintf(`%s=%q`, name, stringVal))
 }
 
 func Nil() interface{} {

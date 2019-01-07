@@ -60,7 +60,7 @@ func Test_Arg_Quotes(t *testing.T) {
 }
 
 func Test_Arg_Quotes_With_Inner_Quote(t *testing.T) {
-	res, err := run(`div(x-arg='test=\'\';')`, nil)
+	res, err := run(`div(x-arg='test=\''+'\';')`, nil)
 
 	if err != nil {
 		t.Fatal(err.Error())
@@ -105,7 +105,7 @@ div(name="Test" @foo.bar="baz", commasep=1 unescaped!="<foo>").testclass
 	if err != nil {
 		t.Fatal(err.Error())
 	} else {
-		expect(res, `<div name="Test" @foo.bar="baz" commasep="1"  unescaped="<foo>" class="testclass"><p style="text-align: center; color: maroon" quoted="foo"><span class="class-name" id="id-name"></span></p></div>`, t)
+		expect(res, `<div name="Test" @foo.bar="baz" commasep="1" unescaped="<foo>" class="testclass"><p style="text-align: center; color: maroon" quoted="foo"><span class="class-name" id="id-name"></span></p></div>`, t)
 	}
 }
 
@@ -125,7 +125,7 @@ func Test_MapAttribute(t *testing.T) {
 	if err != nil {
 		t.Fatal(err.Error())
 	} else {
-		expect(res, `<div attr="{&#34;foo&#34;:&#34;bar&#34;}"></div>`, t)
+		expect(res, `<div attr="{\"foo\":\"bar\"}"></div>`, t)
 	}
 }
 
@@ -506,6 +506,8 @@ func expect(cur, expected string, t *testing.T) {
 }
 
 func run(tpl string, data interface{}) (string, error) {
+	//fmt.Println(ParseString(tpl, Options{PrettyPrint: true}))
+
 	t, err := CompileString(tpl)
 	if err != nil {
 		return "", err

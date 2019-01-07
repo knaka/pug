@@ -198,7 +198,7 @@ func (n *Attribute) Compile(w Context, parent Node) (err error) {
 	strAttribute, ok := n.Value.(*StringExpression)
 
 	if n.Unescaped {
-		w.writef(`{{ __pug_unescapeattr %s `, strconv.Quote(n.Name))
+		w.writef(`{{ __pug_unescapeattr %q `, n.Name)
 		if err := n.Value.Compile(w, n); err != nil {
 			return err
 		}
@@ -206,11 +206,11 @@ func (n *Attribute) Compile(w Context, parent Node) (err error) {
 	} else if ok {
 		w.writef(`%s=%q`, n.Name, strAttribute.Value)
 	} else {
-		w.writef(`%s="{{ `, n.Name)
+		w.writef(`{{ __pug_unescapeattr %q `, n.Name)
 		if err := n.Value.Compile(w, n); err != nil {
 			return err
 		}
-		w.write(` }}"`)
+		w.write(` }}`)
 	}
 
 	return
