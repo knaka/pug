@@ -88,9 +88,19 @@ type Scope struct {
 
 type Root struct {
 	*GraphNode
-	Extends  *Root
-	List     *List
-	Filename string
+	Extends          *Root
+	List             *List
+	Filename         string
+	definedVariables map[string]struct{}
+}
+
+func (n *Root) Define(name string) {
+	n.definedVariables[name] = struct{}{}
+}
+
+func (n *Root) Defined(name string) bool {
+	_, ok := n.definedVariables[name]
+	return ok
 }
 
 type List struct {

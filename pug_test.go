@@ -2,6 +2,7 @@ package pug
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -125,7 +126,22 @@ func Test_MapAttribute(t *testing.T) {
 	if err != nil {
 		t.Fatal(err.Error())
 	} else {
-		expect(res, `<div attr="{\"foo\":\"bar\"}"></div>`, t)
+		expect(res, `<div attr="{&#34;foo&#34;:&#34;bar&#34;}"></div>`, t)
+	}
+}
+
+func Test_SafeAttribute(t *testing.T) {
+	res, err := run(`
+- var Color2 = Color
+div(style='background: '+Color2)
+`, struct {
+		Color string
+	}{Color: "rgb(0, 0, 0)"})
+
+	if err != nil {
+		t.Fatal(err.Error())
+	} else {
+		expect(res, `<div style="background: rgb(0, 0, 0)"></div>`, t)
 	}
 }
 
@@ -392,6 +408,22 @@ p #{vrb}
 	}
 }
 
+func Test_Reassignment(t *testing.T) {
+	res, err := run(`
+- var vRb = "test"
+p #{vRb}
+if 1==1
+	- var vRb = "test2"
+p #{vRb}
+`, nil)
+
+	if err != nil {
+		t.Fatal(err.Error())
+	} else {
+		expect(res, `<p>test</p><p>test2</p>`, t)
+	}
+}
+
 func Test_Block(t *testing.T) {
 	res, err := run(`
 block deneme
@@ -510,11 +542,11 @@ func run(tpl string, data interface{}) (string, error) {
 
 	t, err := CompileString(tpl)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("could not compile template: %v", err)
 	}
 	var buf bytes.Buffer
 	if err = t.Execute(&buf, data); err != nil {
-		return "", err
+		return "", fmt.Errorf("could not execute template: %v", err)
 	}
 	return strings.TrimSpace(buf.String()), nil
 }

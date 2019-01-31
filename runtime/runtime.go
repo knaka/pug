@@ -28,6 +28,7 @@ var FuncMap template.FuncMap = template.FuncMap{
 	"__pug_map":          Map,
 	"__pug_unescape":     Unescape,
 	"__pug_unescapeattr": UnescapeAttr,
+	"__pug_escapeattr":   EscapeAttr,
 	"__pug_classnames":   ClassNames,
 	"__pug_style":        Style,
 }
@@ -255,6 +256,21 @@ func UnescapeAttr(name string, val interface{}) template.HTMLAttr {
 		stringVal = fmt.Sprint(val)
 	}
 	return template.HTMLAttr(fmt.Sprintf(`%s=%q`, name, stringVal))
+}
+
+var htmlEscaper = strings.NewReplacer(
+	`&`, "&amp;",
+	`<`, "&lt;",
+	`>`, "&gt;",
+	`"`, "&#34;", // "&#34;" is shorter than "&quot;".
+)
+
+func EscapeAttr(name string, val interface{}) template.HTMLAttr {
+	var stringVal string
+	if val != nil {
+		stringVal = fmt.Sprint(val)
+	}
+	return template.HTMLAttr(fmt.Sprintf(`%s="%s"`, name, htmlEscaper.Replace(stringVal)))
 }
 
 func Nil() interface{} {

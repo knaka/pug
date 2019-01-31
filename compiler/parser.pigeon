@@ -103,7 +103,7 @@
 }
 
 Input <- l:List EOF {
-  return &Root{List: l.(*List), GraphNode: NewNode(pos(c.pos))}, nil
+  return &Root{List: l.(*List), GraphNode: NewNode(pos(c.pos)), definedVariables: map[string]struct{}{}}, nil
 }
 
 List <- node:ListNode list:List {

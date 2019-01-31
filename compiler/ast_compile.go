@@ -206,7 +206,7 @@ func (n *Attribute) Compile(w Context, parent Node) (err error) {
 	} else if ok {
 		w.writef(`%s=%q`, n.Name, strAttribute.Value)
 	} else {
-		w.writef(`{{ __pug_unescapeattr %q `, n.Name)
+		w.writef(`{{ __pug_escapeattr %q `, n.Name)
 		if err := n.Value.Compile(w, n); err != nil {
 			return err
 		}
@@ -583,13 +583,19 @@ func (n *Assignment) Compile(w Context, parent Node) (err error) {
 
 	n.Variable = n.Parent.variable(n.Variable)
 
+	eq := "="
+	if !n.root().Defined(n.Variable.Name) {
+		eq = ":="
+		n.root().Define(n.Variable.Name)
+	}
+
 	if rawExpr := n.Expression.RawValue(w, n); rawExpr != nil {
-		w.writeLinef("{{ $%s := %s }}", n.Variable.Name, *rawExpr)
+		w.writeLinef("{{ $%s %s %s }}", n.Variable.Name, eq, *rawExpr)
 		return
 	}
 
 	w.beginLine()
-	w.writef("{{ $%s := ", n.Variable.Name)
+	w.writef("{{ $%s %s ", n.Variable.Name, eq)
 	if err := n.Expression.Compile(w, n); err != nil {
 		return err
 	}
