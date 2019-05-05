@@ -1,9 +1,12 @@
 
 
 # pug
-`import "github.com/eknkc/pug"`
+This package was originally written by eknkc. This package contains some fixes and modifications.
+
+`import "github.com/ZzEeKkAa/pug"`
 
 * [Overview](#pkg-overview)
+* [Difference with original](#pkg-difference)
 * [Index](#pkg-index)
 * [Subdirectories](#pkg-subdirectories)
 
@@ -31,7 +34,12 @@ Differences between Pug and Pug.go (items with checkboxes are planned, just not 
 Apart from these missing features, everything in the language reference should be supported.
 
 
+## <a name="pkg-difference">Difference with original</a>
 
+- Fixed support for class names with '-'
+- Fixed nested loops
+- Added support for single quotes
+- Added support for import exception list
 
 ## <a name="pkg-index">Index</a>
 * [func CompileFile(filename string, options ...Options) (*template.Template, error)](#CompileFile)

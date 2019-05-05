@@ -20,6 +20,9 @@ type Options struct {
 	// By default, a os package is used but you can supply a different filesystem using this option
 	Dir compiler.Dir
 
+	// ExcludeImports is a list of imports, which will not be imported while compiling template.
+	ExcludedImports []string
+
 	Funcs template.FuncMap
 }
 
@@ -36,7 +39,7 @@ func newContext(dir compiler.Dir, options ...Options) compiler.Context {
 		dir = opt.Dir
 	}
 
-	context := compiler.NewContext(dir, indentString)
+	context := compiler.NewContext(dir, indentString, opt.ExcludedImports)
 
 	return context
 }

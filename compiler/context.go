@@ -22,6 +22,7 @@ type Context interface {
 	endLine()
 
 	define(string, ...func() error) (*Define, error)
+	excludedImport(file string) bool
 
 	ParseFile(name string) (*Root, error)
 	ReadFile(name string) (string, error)
@@ -32,12 +33,13 @@ type Context interface {
 }
 
 type context struct {
-	body         *bytes.Buffer
-	dir          Dir
-	indentLevel  int
-	indentString string
-	path         string
-	definitions  map[string]*Define
+	body            *bytes.Buffer
+	dir             Dir
+	indentLevel     int
+	indentString    string
+	path            string
+	definitions     map[string]*Define
+	excludedImports map[string]interface{}
 }
 
 func (bw *context) clone() *context {
@@ -236,16 +238,25 @@ func (bw *context) indent()    { bw.indentLevel++ }
 func (bw *context) outdent()   { bw.indentLevel-- }
 func (bw *context) beginLine() { bw.write(strings.Repeat(bw.indentString, bw.indentLevel)) }
 
+func (bw *context) excludedImport(file string) bool { _, ok := bw.excludedImports[file]; return ok }
+
 func (bw *context) endLine() {
 	if bw.indentString != "" {
 		bw.write("\n")
 	}
 }
 
-func NewContext(dir Dir, indentString string) Context {
-	return &context{
-		body:         &bytes.Buffer{},
-		dir:          dir,
-		indentString: indentString,
+func NewContext(dir Dir, indentString string, ExcludedImports []string) Context {
+	ctx := &context{
+		body:            &bytes.Buffer{},
+		dir:             dir,
+		indentString:    indentString,
+		excludedImports: map[string]interface{}{},
 	}
+
+	for _, file := range ExcludedImports {
+		ctx.excludedImports[file] = struct{}{}
+	}
+
+	return ctx
 }

@@ -467,6 +467,26 @@ func Test_Import(t *testing.T) {
 	expect(string(buf.Bytes()), "<style>body { color: red; }\n</style><p>Main<p>import1</p><p>import2</p></p><p>import2</p>", t)
 }
 
+func Test_ImportException(t *testing.T) {
+	tpl, err := CompileFile("examples/import/import.pug", Options{
+		ExcludedImports: []string{"sub/style.css"},
+	})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	buf := &bytes.Buffer{}
+
+	tpl.New("sub/style.css").Parse("body { color: green; }")
+
+	if err := tpl.Execute(buf, nil); err != nil {
+		t.Fatal(err)
+	}
+
+	expect(string(buf.Bytes()), "<style>body { color: green; }</style><p>Main<p>import1</p><p>import2</p></p><p>import2</p>", t)
+}
+
 func Test_Extend(t *testing.T) {
 	tpl, err := CompileFile("examples/extend/extend.pug")
 

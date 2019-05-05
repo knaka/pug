@@ -614,6 +614,11 @@ func (n *Import) Compile(w Context, parent Node) (err error) {
 	file := filepath.Join(filepath.Dir(root.Filename), n.File)
 	ext := filepath.Ext(file)
 
+	if w.excludedImport(n.File) {
+		w.writeLinef("{{ template %q . }}", n.File)
+		return nil
+	}
+
 	if ext != ".pug" && ext != "" {
 		if data, err := w.ReadFile(file); err != nil {
 			return err
