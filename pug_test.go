@@ -558,7 +558,7 @@ func expect(cur, expected string, t *testing.T) {
 }
 
 func run(tpl string, data interface{}) (string, error) {
-	//fmt.Println(ParseString(tpl, Options{PrettyPrint: true}))
+	// fmt.Println(ParseString(tpl, Options{PrettyPrint: true}))
 
 	t, err := CompileString(tpl)
 	if err != nil {
@@ -574,4 +574,33 @@ func run(tpl string, data interface{}) (string, error) {
 type testStruct struct {
 	Key   string
 	Items []string
+}
+
+func Test_TagInterpolation(t *testing.T) {
+	tests := []struct {
+		tpl  string
+		data interface{}
+		want string
+	}{
+		{
+			"p Hello #[foo] World",
+			nil,
+			"<p>Hello <foo></foo> World</p>",
+		},
+		{
+			"p Hello #[foo(bar='123')] World",
+			nil,
+			"<p>Hello <foo bar=\"123\"></foo> World</p>",
+		},
+		{
+			"p Hello #[foo(bar='123') baz] World",
+			nil,
+			"<p>Hello <foo bar=\"123\">baz</foo> World</p>",
+		},
+	}
+	for _, tt := range tests {
+		if res, _ := run(tt.tpl, tt.data); res != tt.want {
+			t.Errorf("res %v, want %v", res, tt.want)
+		}
+	}
 }

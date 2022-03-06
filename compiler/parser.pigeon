@@ -459,9 +459,73 @@ TextList <- intr:Interpolation tl:TextList {
     Nodes: []Node{intNode},
     GraphNode: NewNode(pos(c.pos)),
   }, nil
+} / intr:TagInterpolation tl:TextList {
+  intNode := intr.(*Tag)
+
+  if tl != nil {
+    tlnode := tl.(*TextList);
+    return &TextList{
+      Nodes: append([]Node{intNode}, tlnode.Nodes...),
+      GraphNode: NewNode(pos(c.pos)),
+    }, nil
+  }
+
+  return TextList{
+    Nodes: []Node{intNode},
+    GraphNode: NewNode(pos(c.pos)),
+  }, nil
 } / &NL {
   return &TextList{GraphNode: NewNode(pos(c.pos))}, nil
 } / ch:. tl:TextList {
+  tlnode := tl.(*TextList);
+  chstr := string(ch.([]byte))
+
+  if len(tlnode.Nodes) > 0 {
+    if tn, ok := tlnode.Nodes[0].(*Text); ok {
+      tlnode.Nodes[0] = &Text{Value: chstr + tn.Value}
+      return tlnode, nil
+    }
+  }
+
+  tlnode.Nodes = append([]Node{&Text{Value: chstr, GraphNode: NewNode(pos(c.pos))}}, tlnode.Nodes...)
+  tlnode.Position = pos(c.pos)
+
+  return tlnode, nil
+}
+
+TagInterpolationTextList <- intr:Interpolation tl:TagInterpolationTextList {
+  intNode := intr.(*Interpolation)
+
+  if tl != nil {
+    tlnode := tl.(*TextList);
+    return &TextList{
+      Nodes: append([]Node{intNode}, tlnode.Nodes...),
+      GraphNode: NewNode(pos(c.pos)),
+    }, nil
+  }
+
+  return TextList{
+    Nodes: []Node{intNode},
+    GraphNode: NewNode(pos(c.pos)),
+  }, nil
+} / intr:TagInterpolation tl:TagInterpolationTextList {
+  intNode := intr.(*Tag)
+
+  if tl != nil {
+    tlnode := tl.(*TextList);
+    return &TextList{
+      Nodes: append([]Node{intNode}, tlnode.Nodes...),
+      GraphNode: NewNode(pos(c.pos)),
+    }, nil
+  }
+
+  return TextList{
+    Nodes: []Node{intNode},
+    GraphNode: NewNode(pos(c.pos)),
+  }, nil
+} / &']' {
+  return &TextList{GraphNode: NewNode(pos(c.pos))}, nil
+} / ch:. tl:TagInterpolationTextList {
   tlnode := tl.(*TextList);
   chstr := string(ch.([]byte))
 
@@ -487,6 +551,17 @@ Interpolation <- mod:('#' / '!') '{' _ expr:Expression _ '}' {
     intElem.Unescaped = true
   }
   return intElem, nil
+}
+
+TagInterpolation <- '#' '[' _ name:TagName attrs:TagAttributes? tl:(__ TagInterpolationTextList)? _ ']' {
+  tag := &Tag{Name: name.(string), GraphNode: NewNode(pos(c.pos)), SelfClose: false}
+  if attrs != nil {
+    tag.Attributes = attrs.([]*Attribute)
+  }
+  if tl != nil {
+    tag.Text = toSlice(tl)[1].(*TextList)
+  }
+  return tag, nil
 }
 
 Expression <- ExpressionTernery
