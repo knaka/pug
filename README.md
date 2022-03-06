@@ -3,7 +3,7 @@
 # pug
 This package was originally written by eknkc. This package contains some fixes and modifications.
 
-`import "github.com/ZzEeKkAa/pug"`
+`import "github.com/knaka/pug"`
 
 * [Overview](#pkg-overview)
 * [Difference with original](#pkg-difference)

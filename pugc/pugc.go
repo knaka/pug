@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	pug "github.com/ZzEeKkAa/pug"
+	pug "github.com/knaka/pug"
 )
 
 var prettyPrint bool

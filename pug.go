@@ -3,8 +3,8 @@ package pug
 import (
 	"html/template"
 
-	"github.com/ZzEeKkAa/pug/compiler"
-	"github.com/ZzEeKkAa/pug/runtime"
+	"github.com/knaka/pug/compiler"
+	"github.com/knaka/pug/runtime"
 )
 
 type Options struct {
